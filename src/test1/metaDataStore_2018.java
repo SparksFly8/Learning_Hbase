@@ -9,68 +9,68 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 public class metaDataStore_2018 {
-	public static Configuration configuration;
+    public static Configuration configuration;
     public static Connection connection;
     public static Admin admin;
     static String xlsxPath = "C:/Users/Administrator/Desktop/whole_data.xlsx";
 	public static void main(String[] args) throws IOException{
-		String tableName = "2018AAAI_Papers";  //Êı¾İ¿â±íÃû
-		String colFamily1 = "paper_info";      //µÚÒ»¸öÁĞ´Ø
-		String colFamily2 = "creator_info";    //µÚ¶ş¸öÁĞ´Ø
+		String tableName = "2018AAAI_Papers";  //æ•°æ®åº“è¡¨å
+		String colFamily1 = "paper_info";      //ç¬¬ä¸€ä¸ªåˆ—ç°‡
+		String colFamily2 = "creator_info";    //ç¬¬äºŒä¸ªåˆ—ç°‡
 		String xlsx_Path = "C:/Users/Administrator/Desktop/whole_data.xlsx";
-		String year = "2018";                  //ÅÀÈ¡µÄÂÛÎÄÄê·İ
+		String year = "2018";                  //çˆ¬å–çš„è®ºæ–‡å¹´ä»½
 		//readXlsx();
 		init();
 //		deleteTable(tableName);
 		createTable(tableName,new String[]{colFamily1,colFamily2});
-		for(int ColNum=2;ColNum<=4;ColNum++)   //ÒÀ´Î¶ÁÈ¡xlsxÎÄ¼şµÄµÚColNumÁĞ(´Ó0¼ÆÊı)
+		for(int ColNum=2;ColNum<=4;ColNum++)   //ä¾æ¬¡è¯»å–xlsxæ–‡ä»¶çš„ç¬¬ColNumåˆ—(ä»0è®¡æ•°)
 			xlsx2HBase(tableName,colFamily1,xlsx_Path,ColNum,year);
-		for(int ColNum=5;ColNum<=46;ColNum++)  //¶ÔÓÚcreatorĞÅÏ¢·ÅÈëcreator_infoÁĞ´ØÖĞ
+		for(int ColNum=5;ColNum<=46;ColNum++)  //å¯¹äºcreatorä¿¡æ¯æ”¾å…¥creator_infoåˆ—ç°‡ä¸­
 			xlsx2HBase(tableName,colFamily2,xlsx_Path,ColNum,year);
 		listTables();
     	close();
 	}
 	public static void xlsx2HBase(String tableName,String colFamily,String xlsx_Path,int xlsx_ColNum,String year) throws IOException{
-		//»ñÈ¡HBaseÊı¾İ¿â±í
+		//è·å–HBaseæ•°æ®åº“è¡¨
 		Table table = connection.getTable(TableName.valueOf(tableName)); 
-		//¶ÁÈ¡xlsxÎÄ¼şÄ³Ò»ÁĞÊı¾İ
+		//è¯»å–xlsxæ–‡ä»¶æŸä¸€åˆ—æ•°æ®
 		InputStream inputstream = new FileInputStream(xlsx_Path);
-		XSSFWorkbook workbook = new XSSFWorkbook(inputstream);  //´´½¨Ò»¸ö¹¤×÷²¾£¬°Ñ¶ÁÈ¡µÄÁ÷Êı¾İ·ÅÈëÆäÖĞ	
-		XSSFSheet sheet = workbook.getSheetAt(0);               //»ñÈ¡¹¤×÷²¾ÖĞµÄµÚ1¸ösheet(´Ó0¼ÆÊı)
-		int totalRows = sheet.getPhysicalNumberOfRows();        //»ñÈ¡¸ÃsheetÖĞÓĞ¶àÉÙĞĞÊı¾İ
-		String cell;                                            //xlsxµ¥Ôª¸ñĞÅÏ¢
-		String rowKey;                                          //HBaseÖĞµÄrowKey
-		Put put;                                                //HBaseÖĞµÄputÊµÀı
-		String header = sheet.getRow(0).getCell(xlsx_ColNum).toString(); //»ñÈ¡¸ÃÁĞ±íÍ·ĞÅÏ¢
-		for(int i=sheet.getFirstRowNum()+1;i<totalRows;i++){        //xlsx±íĞĞÊı´Ó0¼ÆÊı
-			cell = sheet.getRow(i).getCell(xlsx_ColNum).toString(); //»ñÈ¡xlsxµÚiĞĞµÚxlsx_ColNumµ¥Ôª¸ñĞÅÏ¢
-			if(cell.equals("0")) continue;                          //Èç¹ûµ¥Ôª¸ñÖµÊÇ"0"±íÊ¾ÎŞĞèÌí¼Ó¸ÃĞÅÏ¢
-			rowKey = year+String.format("%04d", i);                 //¸ù¾İÄê·İºÍĞĞÖµÆ´½Ó³É×Ö·û´®ĞÎ³ÉrowKey
-			put = new Put(rowKey.getBytes());                   //´´½¨putÊµÀı
+		XSSFWorkbook workbook = new XSSFWorkbook(inputstream);  //åˆ›å»ºä¸€ä¸ªå·¥ä½œç°¿ï¼ŒæŠŠè¯»å–çš„æµæ•°æ®æ”¾å…¥å…¶ä¸­	
+		XSSFSheet sheet = workbook.getSheetAt(0);               //è·å–å·¥ä½œç°¿ä¸­çš„ç¬¬1ä¸ªsheet(ä»0è®¡æ•°)
+		int totalRows = sheet.getPhysicalNumberOfRows();        //è·å–è¯¥sheetä¸­æœ‰å¤šå°‘è¡Œæ•°æ®
+		String cell;                                            //xlsxå•å…ƒæ ¼ä¿¡æ¯
+		String rowKey;                                          //HBaseä¸­çš„rowKey
+		Put put;                                                //HBaseä¸­çš„putå®ä¾‹
+		String header = sheet.getRow(0).getCell(xlsx_ColNum).toString(); //è·å–è¯¥åˆ—è¡¨å¤´ä¿¡æ¯
+		for(int i=sheet.getFirstRowNum()+1;i<totalRows;i++){        //xlsxè¡¨è¡Œæ•°ä»0è®¡æ•°
+			cell = sheet.getRow(i).getCell(xlsx_ColNum).toString(); //è·å–xlsxç¬¬iè¡Œç¬¬xlsx_ColNumå•å…ƒæ ¼ä¿¡æ¯
+			if(cell.equals("0")) continue;                          //å¦‚æœå•å…ƒæ ¼å€¼æ˜¯"0"è¡¨ç¤ºæ— éœ€æ·»åŠ è¯¥ä¿¡æ¯
+			rowKey = year+String.format("%04d", i);                 //æ ¹æ®å¹´ä»½å’Œè¡Œå€¼æ‹¼æ¥æˆå­—ç¬¦ä¸²å½¢æˆrowKey
+			put = new Put(rowKey.getBytes());                   //åˆ›å»ºputå®ä¾‹
 	        put.addColumn(colFamily.getBytes(), header.getBytes(), cell.getBytes());
-	        table.put(put);                                         //ÏòHBaseÖĞµÄÊı¾İ¿â±í²åÈëÊı¾İ
-	        System.out.println("µÚ"+rowKey+"ĞĞ"+header+"ÁĞ²åÈë³É¹¦.");
+	        table.put(put);                                         //å‘HBaseä¸­çš„æ•°æ®åº“è¡¨æ’å…¥æ•°æ®
+	        System.out.println("ç¬¬"+rowKey+"è¡Œ"+header+"åˆ—æ’å…¥æˆåŠŸ.");
 		}      
-		//¹Ø±ÕÊı¾İ¿â±í
+		//å…³é—­æ•°æ®åº“è¡¨
         table.close();  
 	}
-	//½¨Á¢Á¬½Ó
+	//å»ºç«‹è¿æ¥
     public static void init(){
-    	// ¸ù¾İ hbase-site.xml ÎÄ¼ş³õÊ¼»¯ Configuration ¶ÔÏó
+    	// æ ¹æ® hbase-site.xml æ–‡ä»¶åˆå§‹åŒ– Configuration å¯¹è±¡
         configuration  = HBaseConfiguration.create();
         configuration.set("hbase.rootdir","hdfs://master:9000/hbase");
         configuration.set("hbase.zookeeper.quorum", "master,ceph1,ceph2,ceph3");
 		configuration.set("hbase.zookeeper.property.clientPort", "2181");
         try{
-        	// ¸ù¾İ Configuration ¶ÔÏó³õÊ¼»¯ Connection ¶ÔÏó
+        	// æ ¹æ® Configuration å¯¹è±¡åˆå§‹åŒ– Connection å¯¹è±¡
             connection = ConnectionFactory.createConnection(configuration);
             admin = connection.getAdmin();
-            System.out.println("Á¬½ÓHBase³É¹¦.");
+            System.out.println("è¿æ¥HBaseæˆåŠŸ.");
         }catch (IOException e){
-            System.err.println("Á¬½ÓHBaseÊ§°Ü.");
+            System.err.println("è¿æ¥HBaseå¤±è´¥.");
         }
     }
-    //¹Ø±ÕÁ¬½Ó
+    //å…³é—­è¿æ¥
     public static void close(){
         try{
             if(admin != null){
@@ -84,15 +84,15 @@ public class metaDataStore_2018 {
         }
     }
     /**
-     * ½¨±í¡£HBaseµÄ±íÖĞ»áÓĞÒ»¸öÏµÍ³Ä¬ÈÏµÄÊôĞÔ×÷ÎªÖ÷¼ü£¬Ö÷¼üÎŞĞè×ÔĞĞ´´½¨£¬Ä¬ÈÏÎªputÃüÁî²Ù×÷ÖĞ±íÃûºóµÚÒ»¸öÊı¾İ£¬Òò´Ë´Ë´¦ÎŞĞè´´½¨idÁĞ
-     * @param myTableName ±íÃû
-     * @param colFamily ÁĞ×åÃû
+     * å»ºè¡¨ã€‚HBaseçš„è¡¨ä¸­ä¼šæœ‰ä¸€ä¸ªç³»ç»Ÿé»˜è®¤çš„å±æ€§ä½œä¸ºä¸»é”®ï¼Œä¸»é”®æ— éœ€è‡ªè¡Œåˆ›å»ºï¼Œé»˜è®¤ä¸ºputå‘½ä»¤æ“ä½œä¸­è¡¨ååç¬¬ä¸€ä¸ªæ•°æ®ï¼Œå› æ­¤æ­¤å¤„æ— éœ€åˆ›å»ºidåˆ—
+     * @param myTableName è¡¨å
+     * @param colFamily åˆ—æ—å
      * @throws IOException
      */
     public static void createTable(String myTableName,String[] colFamily) throws IOException {
         TableName tableName = TableName.valueOf(myTableName);
         if(admin.tableExists(tableName)){
-            System.out.println("´´½¨µÄÊı¾İ¿â±íÒÑ¾­´æÔÚ!");
+            System.out.println("åˆ›å»ºçš„æ•°æ®åº“è¡¨å·²ç»å­˜åœ¨!");
         }else {
         	TableDescriptorBuilder tableDescriptor = TableDescriptorBuilder.newBuilder(tableName);
             for(String str:colFamily){
@@ -100,12 +100,12 @@ public class metaDataStore_2018 {
             	tableDescriptor.setColumnFamily(columnfamily);
             }
             admin.createTable(tableDescriptor.build());
-            System.out.println("³É¹¦´´½¨"+myTableName+"Êı¾İ¿â±í");
+            System.out.println("æˆåŠŸåˆ›å»º"+myTableName+"æ•°æ®åº“è¡¨");
         }
     }
     /**
-     * É¾³ıÖ¸¶¨±í
-     * @param tableName ±íÃû
+     * åˆ é™¤æŒ‡å®šè¡¨
+     * @param tableName è¡¨å
      * @throws IOException
      */
     public static void deleteTable(String tableName) throws IOException {
@@ -114,15 +114,15 @@ public class metaDataStore_2018 {
             admin.disableTable(tn);
             admin.deleteTable(tn);
         }
-        System.out.println("É¾³ıÊı¾İ¿â±í"+tableName+"³É¹¦.");
+        System.out.println("åˆ é™¤æ•°æ®åº“è¡¨"+tableName+"æˆåŠŸ.");
     }
     /**
-     * ÏòÄ³Ò»ĞĞµÄÄ³Ò»ÁĞ²åÈëÊı¾İ
-     * @param tableName ±íÃû
-     * @param rowKey ĞĞ¼ü
-     * @param colFamily ÁĞ×åÃû
-     * @param col ÁĞÃû£¨Èç¹ûÆäÁĞ×åÏÂÃ»ÓĞ×ÓÁĞ£¬´Ë²ÎÊı¿ÉÎª¿Õ£©
-     * @param val Öµ
+     * å‘æŸä¸€è¡Œçš„æŸä¸€åˆ—æ’å…¥æ•°æ®
+     * @param tableName è¡¨å
+     * @param rowKey è¡Œé”®
+     * @param colFamily åˆ—æ—å
+     * @param col åˆ—åï¼ˆå¦‚æœå…¶åˆ—æ—ä¸‹æ²¡æœ‰å­åˆ—ï¼Œæ­¤å‚æ•°å¯ä¸ºç©ºï¼‰
+     * @param val å€¼
      * @throws IOException
      */
     public static void insertRow(String tableName,String rowKey,String colFamily,String col,String val) throws IOException {
@@ -133,11 +133,11 @@ public class metaDataStore_2018 {
         table.close();
     }
     /**
-     * ²é¿´ÒÑÓĞ±í
+     * æŸ¥çœ‹å·²æœ‰è¡¨
      * @throws IOException
      */
     public static void listTables() throws IOException {
-    	System.out.println("ÁĞ³öÊı¾İ¿â±íÈçÏÂ:");
+    	System.out.println("åˆ—å‡ºæ•°æ®åº“è¡¨å¦‚ä¸‹:");
         TableName tablenames[] = admin.listTableNames();
         for(TableName tablename:tablenames){
         	System.out.println(tablename.getNameAsString());
